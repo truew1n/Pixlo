@@ -119,6 +119,7 @@ LRESULT CALLBACK WindowProcedure(HWND HWindow, UINT Message, WPARAM UserParamete
             return DefWindowProcW(HWindow, Message, UserParameter, DataParameter);
         }
     }
+    return 1;
 }
 
 void DrawPixel(void *Display, int32_t X, int32_t Y, uint32_t Color, int32_t DisplayWidth, int32_t DisplayHeight)

@@ -1,5 +1,5 @@
-#ifndef GIFLIB_LOADER_H
-#define GIFLIB_LOADER_H
+#ifndef PIXLO_MEDIA_LOADER_H
+#define PIXLO_MEDIA_LOADER_H
 
 #include <iostream>
 
@@ -13,16 +13,16 @@
 	Channel - How many channels is per pixel
 	Note: Some modes can have 1 channel and 32 bits. So it would be R32.
 */
-typedef struct SFrame {
+typedef struct SImage {
 	uint8_t *Data;
 	uint32_t Width;
 	uint32_t Height;
 	uint8_t Bits;
 	uint8_t Channel;
-} SFrame;
+} SImage;
 
 typedef struct SAnimation {
-	TArray<SFrame> Frames;
+	TArray<SImage> Frames;
 	uint32_t Size;
 } SAnimation;
 
@@ -38,10 +38,15 @@ enum class EAnimationFileFormat : uint8_t {
 	APNG
 };
 
-class CLoader {
+class CMediaLoader {
+private:
+	static const char* MatchFileFormat(EImageFileFormat FileFormat);
+	static const char* MatchFileFormat(EAnimationFileFormat FileFormat);
 
-	static SFrame LoadImage(const char *Filepath, EImageFileFormat FileFormat);
-	static SAnimation LoadAnimation(const char* Filepath, EAnimationFileFormat FileFormat);
+	SAnimation LoadGif(const char *Filepath);
+public:
+	static SImage LoadImage(const char *Filepath, EImageFileFormat FileFormat);
+	static SAnimation LoadAnimation(const char *Filepath, EAnimationFileFormat FileFormat);
 };
 
 #endif
