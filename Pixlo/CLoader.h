@@ -3,6 +3,7 @@
 
 #include <iostream>
 
+#include "Array.h"
 
 /*
 	Data - Contains whole data of the frame
@@ -20,14 +21,27 @@ typedef struct SFrame {
 	uint8_t Channel;
 } SFrame;
 
-typedef struct EFileFormat {
+typedef struct SAnimation {
+	TArray<SFrame> Frames;
+	uint32_t Size;
+} SAnimation;
 
+enum class EImageFileFormat : uint8_t {
+	BMP,
+	PNG,
+	JPG,
+	SVG
+};
+
+enum class EAnimationFileFormat : uint8_t {
+	GIF,
+	APNG
 };
 
 class CLoader {
 
-	static SFrame LoadFrame(const char *Filepath, EFileFormat FileFormat);
-
+	static SFrame LoadImage(const char *Filepath, EImageFileFormat FileFormat);
+	static SAnimation LoadAnimation(const char* Filepath, EAnimationFileFormat FileFormat);
 };
 
 #endif

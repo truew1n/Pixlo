@@ -16,9 +16,6 @@ void FillRectangle(void *Display, int32_t X, int32_t Y, int32_t Width, int32_t H
 
 int WINAPI WinMain(HINSTANCE HInstance, HINSTANCE HPreviousInstance, LPSTR Command, int CommandLength)
 {
-
-
-    return 0;
     WNDCLASSW WindowClass = { 0 };
     WindowClass.hbrBackground = (HBRUSH) COLOR_WINDOW;
     WindowClass.hInstance = HInstance;
@@ -114,13 +111,13 @@ int WINAPI WinMain(HINSTANCE HInstance, HINSTANCE HPreviousInstance, LPSTR Comma
 LRESULT CALLBACK WindowProcedure(HWND HWindow, UINT Message, WPARAM UserParameter, LPARAM DataParameter)
 {
     switch (Message) {
-    case WM_DESTROY: {
-        PostQuitMessage(0);
-        break;
-    }
-    default: {
-        return DefWindowProcW(HWindow, Message, UserParameter, DataParameter);
-    }
+        case WM_DESTROY: {
+            PostQuitMessage(0);
+            break;
+        }
+        default: {
+            return DefWindowProcW(HWindow, Message, UserParameter, DataParameter);
+        }
     }
 }
 
