@@ -5,6 +5,24 @@
 
 #define ASIZE(Array) (sizeof(Array) / sizeof(Array[0]))
 
+namespace NMess {
+
+    inline void PrintHex(uint8_t *Data, uint64_t Size)
+    {
+        for (uint64_t I = 0; I < Size; ++I) {
+            printf_s("%02x", Data[I]);
+        }
+    }
+
+    inline void PrintAscii(uint8_t *Data, uint64_t Size)
+    {
+        for (uint64_t I = 0; I < Size; ++I) {
+            if (Data[I] < 32) printf_s(".");
+            else printf_s("%c", Data[I]);
+        }
+    }
+}
+
 namespace NUtilConverter {
 
     template<typename T>

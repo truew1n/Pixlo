@@ -38,7 +38,7 @@ enum class EAnimationFileFormat : uint8_t {
 	APNG
 };
 
-class CMediaLoader {
+class CMediaProcessor {
 private:
 	static const char* MatchFileFormat(EImageFileFormat FileFormat);
 	static const char* MatchFileFormat(EAnimationFileFormat FileFormat);

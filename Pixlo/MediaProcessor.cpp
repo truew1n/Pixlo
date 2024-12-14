@@ -1,8 +1,8 @@
-#include "MediaLoader.h"
+#include "MediaProcessor.h"
 
 // private:
 
-const char* CMediaLoader::MatchFileFormat(EImageFileFormat FileFormat)
+const char* CMediaProcessor::MatchFileFormat(EImageFileFormat FileFormat)
 {
 	switch (FileFormat) {
 		case EImageFileFormat::BMP: return "BMP";
@@ -13,7 +13,7 @@ const char* CMediaLoader::MatchFileFormat(EImageFileFormat FileFormat)
 	}
 }
 
-const char* CMediaLoader::MatchFileFormat(EAnimationFileFormat FileFormat)
+const char* CMediaProcessor::MatchFileFormat(EAnimationFileFormat FileFormat)
 {
 	switch (FileFormat) {
 		case EAnimationFileFormat::GIF: return "GIF";
@@ -22,14 +22,14 @@ const char* CMediaLoader::MatchFileFormat(EAnimationFileFormat FileFormat)
 	}
 }
 
-SAnimation CMediaLoader::LoadGif(const char *Filepath)
+SAnimation CMediaProcessor::LoadGif(const char *Filepath)
 {
 
 }
 
 // public:
 
-SImage CMediaLoader::LoadImage(const char *Filepath, EImageFileFormat FileFormat)
+SImage CMediaProcessor::LoadImage(const char *Filepath, EImageFileFormat FileFormat)
 {
 	SImage Image = { 0 };
 	switch (FileFormat) {
@@ -38,14 +38,14 @@ SImage CMediaLoader::LoadImage(const char *Filepath, EImageFileFormat FileFormat
 			break;
 		}
 		default: {
-			std::cout << "LoadImage >> Unknown file format!\n";
+			std::cout << "MediaLoader >> LoadImage >> Unknown file format!\n";
 			break;
 		}
 	}
 
 }
 
-SAnimation CMediaLoader::LoadAnimation(const char *Filepath, EAnimationFileFormat FileFormat)
+SAnimation CMediaProcessor::LoadAnimation(const char *Filepath, EAnimationFileFormat FileFormat)
 {
 	switch (FileFormat) {
 		case EAnimationFileFormat::GIF: {
@@ -53,7 +53,7 @@ SAnimation CMediaLoader::LoadAnimation(const char *Filepath, EAnimationFileForma
 			break;
 		}
 		default: {
-			std::cout << "LoadAnimation >> Unknown file format!\n";
+			std::cout << "MediaLoader >> LoadAnimation >> Unknown file format!\n";
 			break;
 		}
 	}

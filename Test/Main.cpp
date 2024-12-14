@@ -1,4 +1,5 @@
 #include <iostream>
+#include "GifProcessor.h"
 
 #include <Windows.h>
 
@@ -14,11 +15,18 @@ LRESULT CALLBACK WindowProcedure(HWND HWindow, UINT Message, WPARAM UserParamete
 void DrawPixel(void *Display, int32_t X, int32_t Y, uint32_t Color, int32_t DisplayWidth, int32_t DisplayHeight);
 void FillRectangle(void *Display, int32_t X, int32_t Y, int32_t Width, int32_t Height, uint32_t Color, int32_t DisplayWidth, int32_t DisplayHeight);
 
-int WINAPI WinMain(HINSTANCE HInstance, HINSTANCE HPreviousInstance, LPSTR Command, int CommandLength)
+//int APIENTRY WinMain(HINSTANCE HInstance, HINSTANCE HPreviousInstance, LPSTR Command, int CommandLength)
+int main(void)
 {
+    SGif Gif = { 0 };
+    CGifProcessor::Load("Assets\\Textures\\Behance.gif", &Gif);
+    CGifProcessor::Print(&Gif);
+
+    free(Gif.GlobalColorTable);
+
     WNDCLASSW WindowClass = { 0 };
     WindowClass.hbrBackground = (HBRUSH) COLOR_WINDOW;
-    WindowClass.hInstance = HInstance;
+    WindowClass.hInstance = GetModuleHandleW(NULL);
     WindowClass.hCursor = LoadCursor(NULL, IDC_ARROW);
     WindowClass.lpszClassName = L"Root";
     WindowClass.lpfnWndProc = WindowProcedure;
@@ -38,7 +46,7 @@ int WINAPI WinMain(HINSTANCE HInstance, HINSTANCE HPreviousInstance, LPSTR Comma
 
     HWND window = CreateWindowW(
         WindowClass.lpszClassName,
-        L"GIF Loader Test",
+        L"Pixlo Media Loader Test",
         WS_OVERLAPPEDWINDOW | WS_VISIBLE,
         CW_USEDEFAULT,
         CW_USEDEFAULT,
@@ -104,7 +112,7 @@ int WINAPI WinMain(HINSTANCE HInstance, HINSTANCE HPreviousInstance, LPSTR Comma
         );
     }
 
-    VirtualFree(Display, DisplayWidth * DisplayHeight * BytesPerPixel, MEM_RELEASE);
+    VirtualFree(Display, (SIZE_T)(DisplayWidth * DisplayHeight * BytesPerPixel), MEM_RELEASE);
     return 0;
 }
 
