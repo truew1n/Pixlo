@@ -24,7 +24,7 @@ public:
 	int8_t ReadInt8();
 	bool Read(void *Buffer, uint64_t ElementSize, uint64_t ElementCount);
 	bool Write(void *Buffer, uint64_t ElementSize, uint64_t ElementCount);
-	bool Seek(int32_t Offset, ESeekOrigin Origin);
+	bool Seek(int64_t Offset, ESeekOrigin Origin);
 	uint64_t Tell();
 
 	~CFile();

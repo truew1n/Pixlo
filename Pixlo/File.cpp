@@ -53,7 +53,7 @@ bool CFile::Write(void *Buffer, size_t ElementSize, size_t ElementCount)
 	return true;
 }
 
-bool CFile::Seek(int32_t Offset, ESeekOrigin Origin)
+bool CFile::Seek(int64_t Offset, ESeekOrigin Origin)
 {
 	UNINITIALIZED_OPERATION_CHECK(false);
 

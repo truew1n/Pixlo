@@ -128,7 +128,7 @@ int main(void)
             DIB_RGB_COLORS,
             SRCCOPY
         );
-        DeltaSum += DeltaTime;
+        DeltaSum += (float) DeltaTime;
     }
 
     VirtualFree(Display, (SIZE_T) (DisplayWidth * DisplayHeight * BytesPerPixel), MEM_RELEASE);
@@ -167,8 +167,8 @@ void FillRectangle(void *Display, int32_t X, int32_t Y, int32_t Width, int32_t H
 
 void DrawImage(void *Display, int32_t X, int32_t Y, SImage *Image, int32_t DisplayWidth, int32_t DisplayHeight)
 {
-    for (int32_t j = 0; j < Image->Height; ++j) {
-        for (int32_t i = 0; i < Image->Width; ++i) {
+    for (uint32_t j = 0; j < Image->Height; ++j) {
+        for (uint32_t i = 0; i < Image->Width; ++i) {
             if ((i >= 0 && i < Image->Width) && (j >= 0 && j < Image->Height)) {
                 DrawPixel(Display, X + i, Y + j, ((uint32_t *) Image->Data)[i + j * Image->Width], DisplayWidth, DisplayHeight);
             }
