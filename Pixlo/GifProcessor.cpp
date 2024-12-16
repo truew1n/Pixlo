@@ -317,10 +317,12 @@ SAnimation CGifProcessor::Load(const char *Filepath, SGif *Gif)
 				ARGBData[PIGreen] = ColorTable[IGreen];
 				ARGBData[PIBlue] = ColorTable[IRed];
 				ARGBData[PIAlpha] = 0xFF;
-				CollectiveData[PIRed] = ColorTable[IBlue];
-				CollectiveData[PIGreen] = ColorTable[IGreen];
-				CollectiveData[PIBlue] = ColorTable[IRed];
-				CollectiveData[PIAlpha] = 0xFF;
+				if (DisposalMethod == 1) {
+					CollectiveData[PIRed] = ColorTable[IBlue];
+					CollectiveData[PIGreen] = ColorTable[IGreen];
+					CollectiveData[PIBlue] = ColorTable[IRed];
+					CollectiveData[PIAlpha] = 0xFF;
+				}
 			}
 		}
 

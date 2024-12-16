@@ -112,7 +112,7 @@ int main(void)
         LastTime = CurrentTime;
 
         if (DeltaSum >= DeltaMax) {
-            AnimationIndex = (AnimationIndex + 1) % (GifAnimation.Size - 24); // -24 Frame Snap Behance.gif
+            AnimationIndex = (AnimationIndex + 1) % (GifAnimation.Size); // -24 Frame Snap Behance.gif
             DeltaSum = 0;
         }
 
