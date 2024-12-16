@@ -24,7 +24,7 @@ const char* CMediaProcessor::MatchFileFormat(EAnimationFileFormat FileFormat)
 
 SAnimation CMediaProcessor::LoadGif(const char *Filepath)
 {
-
+	return {};
 }
 
 // public:
@@ -42,7 +42,7 @@ SImage CMediaProcessor::LoadImage(const char *Filepath, EImageFileFormat FileFor
 			break;
 		}
 	}
-
+	return  {};
 }
 
 SAnimation CMediaProcessor::LoadAnimation(const char *Filepath, EAnimationFileFormat FileFormat)
@@ -57,5 +57,5 @@ SAnimation CMediaProcessor::LoadAnimation(const char *Filepath, EAnimationFileFo
 			break;
 		}
 	}
-
+	return {};
 }

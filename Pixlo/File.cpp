@@ -57,7 +57,7 @@ bool CFile::Seek(int64_t Offset, ESeekOrigin Origin)
 {
 	UNINITIALIZED_OPERATION_CHECK(false);
 
-	fseek(File, Offset, (int32_t) Origin);
+	fseek(File, (int32_t) Offset, (int32_t) Origin);
 
 	return true;
 }

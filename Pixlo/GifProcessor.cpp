@@ -105,7 +105,7 @@ SAnimation CGifProcessor::Load(const char *Filepath, SGif *Gif)
 	}
 
 	SAnimation GifAnimation;
-	uint8_t *PreviousFrameData = nullptr;
+	uint8_t *CollectiveData = (uint8_t *) malloc(sizeof(uint8_t) * CanvasWidth * CanvasHeight * GIF_MODE_ARGB);
 	GifAnimation.Size = 0;
 
 	uint8_t TrailerMarker = 0;
@@ -273,36 +273,54 @@ SAnimation CGifProcessor::Load(const char *Filepath, SGif *Gif)
 
 
 		uint16_t TransparentIndex = GifFrame.GraphicsControlExtension[6];
-		//uint8_t DisposalMethod = (GifFrame.GraphicsControlExtension[3] >> 2) & 0b111;
+		uint8_t DisposalMethod = (GifFrame.GraphicsControlExtension[3] >> 2) & 0b111;
+		//printf_s("Disposal Method: %i\n", DisposalMethod);
 
 		uint32_t PixelCount = CanvasWidth * CanvasHeight;
 		uint8_t *ARGBData = (uint8_t *) malloc(PixelCount * GIF_MODE_ARGB);
 		//std::cout << ImageTop << " " << ImageLeft << " " << ImageWidth << " " << ImageHeight << "\n";
-		
+
 		for (uint32_t J = 0; J < ImageHeight; ++J) {
 			for (uint32_t I = 0; I < ImageWidth; ++I) {
 				uint16_t Index = GifFrame.ImageData[J * ImageWidth + I];
 				uint32_t PixelIndex = (ImageTop + J) * CanvasWidth + (ImageLeft + I);
+				
+				uint64_t PIRed = PixelIndex * GIF_MODE_ARGB + 0;
+				uint64_t PIGreen = PixelIndex * GIF_MODE_ARGB + 1;
+				uint64_t PIBlue = PixelIndex * GIF_MODE_ARGB + 2;
+				uint64_t PIAlpha = PixelIndex * GIF_MODE_ARGB + 3;
 
-				if (Index == TransparentIndex && PreviousFrameData) {
-					ARGBData[PixelIndex * GIF_MODE_ARGB + 0] = PreviousFrameData[PixelIndex * GIF_MODE_ARGB + 0];
-					ARGBData[PixelIndex * GIF_MODE_ARGB + 1] = PreviousFrameData[PixelIndex * GIF_MODE_ARGB + 1];
-					ARGBData[PixelIndex * GIF_MODE_ARGB + 2] = PreviousFrameData[PixelIndex * GIF_MODE_ARGB + 2];
-					ARGBData[PixelIndex * GIF_MODE_ARGB + 3] = PreviousFrameData[PixelIndex * GIF_MODE_ARGB + 3];
-					continue;
+				uint64_t IRed = Index * GIF_MODE_RGB + 0;
+				uint64_t IGreen = Index * GIF_MODE_RGB + 1;
+				uint64_t IBlue = Index * GIF_MODE_RGB + 2;
+
+				if (DisposalMethod == 1) {
+					if (Index == TransparentIndex && CollectiveData) {
+						ARGBData[PIRed] = CollectiveData[PIRed];
+						ARGBData[PIGreen] = CollectiveData[PIGreen];
+						ARGBData[PIBlue] = CollectiveData[PIBlue];
+						ARGBData[PIAlpha] = CollectiveData[PIAlpha];
+						continue;
+					}
 				}
 
 				if (Index >= ColorTableSize) {
-					printf_s("GifLoader >> Load >> Invalid color index detected!\n");
-					free(ARGBData);
-					return {};
+					ARGBData[PIRed] = 0xFF;
+					ARGBData[PIGreen] = 0xFF;
+					ARGBData[PIBlue] = 0xFF;
+					ARGBData[PIAlpha] = 0xFF;
+					continue;
 				}
 
 				// Map index to ARGB
-				ARGBData[PixelIndex * GIF_MODE_ARGB + 0] = ColorTable[Index * GIF_MODE_RGB + 2];
-				ARGBData[PixelIndex * GIF_MODE_ARGB + 1] = ColorTable[Index * GIF_MODE_RGB + 1];
-				ARGBData[PixelIndex * GIF_MODE_ARGB + 2] = ColorTable[Index * GIF_MODE_RGB + 0];
-				ARGBData[PixelIndex * GIF_MODE_ARGB + 3] = 0xFF;
+				ARGBData[PIRed] = ColorTable[IBlue];
+				ARGBData[PIGreen] = ColorTable[IGreen];
+				ARGBData[PIBlue] = ColorTable[IRed];
+				ARGBData[PIAlpha] = 0xFF;
+				CollectiveData[PIRed] = ColorTable[IBlue];
+				CollectiveData[PIGreen] = ColorTable[IGreen];
+				CollectiveData[PIBlue] = ColorTable[IRed];
+				CollectiveData[PIAlpha] = 0xFF;
 			}
 		}
 
@@ -313,14 +331,12 @@ SAnimation CGifProcessor::Load(const char *Filepath, SGif *Gif)
 		Image.Bits = GlobalColorResolution;
 		Image.Channel = GIF_MODE_ARGB;
 
-		PreviousFrameData = Image.Data;
-
 		GifAnimation.Frames.push_back(Image);
 		GifAnimation.Delay = GifFrame.GraphicsControlExtension[5] << 8 | GifFrame.GraphicsControlExtension[4];
 		GifAnimation.Size++;
 
 		File->Seek(1, ESeekOrigin::Current);
 	}
-	
+	free(CollectiveData);
 	return GifAnimation;
 }

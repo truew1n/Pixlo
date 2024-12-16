@@ -34,8 +34,8 @@ int main(void)
 
     if (!RegisterClassW(&WindowClass)) return -1;
 
-    int32_t Width = 800;
-    int32_t Height = 600;
+    int32_t Width = 1600;
+    int32_t Height = 900;
 
     RECT WindowRectangle = { 0 };
     WindowRectangle.right = Width;
@@ -97,7 +97,7 @@ int main(void)
     QueryPerformanceCounter(&LastTime);
 
     float DeltaSum = 0;
-    float DeltaMax = GifAnimation.Delay / 100.0f;
+    float DeltaMax = GifAnimation.Delay / 150.0f;
 
     while (Running) {
         MSG Msg;
@@ -107,13 +107,12 @@ int main(void)
             DispatchMessageW(&Msg);
         }
 
-        // Calculate deltaTime
         QueryPerformanceCounter(&CurrentTime);
         double DeltaTime = (double) (CurrentTime.QuadPart - LastTime.QuadPart) / (double) Frequency.QuadPart;
         LastTime = CurrentTime;
 
         if (DeltaSum >= DeltaMax) {
-            AnimationIndex = (AnimationIndex + 1) % GifAnimation.Size;
+            AnimationIndex = (AnimationIndex + 1) % (GifAnimation.Size - 24); // -24 Frame Snap Behance.gif
             DeltaSum = 0;
         }
 
