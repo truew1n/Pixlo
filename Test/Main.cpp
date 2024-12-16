@@ -97,7 +97,7 @@ int main(void)
     QueryPerformanceCounter(&LastTime);
 
     float DeltaSum = 0;
-    float DeltaMax = 0.03;
+    float DeltaMax = GifAnimation.Delay / 100.0f;
 
     while (Running) {
         MSG Msg;

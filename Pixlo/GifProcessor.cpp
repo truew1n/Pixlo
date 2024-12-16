@@ -272,19 +272,18 @@ SAnimation CGifProcessor::Load(const char *Filepath, SGif *Gif)
 		}
 
 
-		uint16_t TransparentIndex = GifFrame.GraphicsControlExtension[6]; // Get transparent index
+		uint16_t TransparentIndex = GifFrame.GraphicsControlExtension[6];
+		//uint8_t DisposalMethod = (GifFrame.GraphicsControlExtension[3] >> 2) & 0b111;
 
-		uint32_t PixelCount = CanvasWidth * CanvasHeight; // Ensure all frames use this size
+		uint32_t PixelCount = CanvasWidth * CanvasHeight;
 		uint8_t *ARGBData = (uint8_t *) malloc(PixelCount * GIF_MODE_ARGB);
-
-		// Process the frame image
+		//std::cout << ImageTop << " " << ImageLeft << " " << ImageWidth << " " << ImageHeight << "\n";
 		
-		for (uint32_t i = 0; i < ImageHeight; ++i) {
-			for (uint32_t j = 0; j < ImageWidth; ++j) {
-				uint16_t Index = GifFrame.ImageData[i * ImageWidth + j];
-				uint32_t PixelIndex = (ImageTop + i) * CanvasWidth + (ImageLeft + j);
+		for (uint32_t J = 0; J < ImageHeight; ++J) {
+			for (uint32_t I = 0; I < ImageWidth; ++I) {
+				uint16_t Index = GifFrame.ImageData[J * ImageWidth + I];
+				uint32_t PixelIndex = (ImageTop + J) * CanvasWidth + (ImageLeft + I);
 
-				// Handle transparency
 				if (Index == TransparentIndex && PreviousFrameData) {
 					ARGBData[PixelIndex * GIF_MODE_ARGB + 0] = PreviousFrameData[PixelIndex * GIF_MODE_ARGB + 0];
 					ARGBData[PixelIndex * GIF_MODE_ARGB + 1] = PreviousFrameData[PixelIndex * GIF_MODE_ARGB + 1];
@@ -300,15 +299,13 @@ SAnimation CGifProcessor::Load(const char *Filepath, SGif *Gif)
 				}
 
 				// Map index to ARGB
-				 // Ensure position matches canvas
-				ARGBData[PixelIndex * GIF_MODE_ARGB + 0] = ColorTable[Index * GIF_MODE_RGB + 2]; // Red
-				ARGBData[PixelIndex * GIF_MODE_ARGB + 1] = ColorTable[Index * GIF_MODE_RGB + 1]; // Green
-				ARGBData[PixelIndex * GIF_MODE_ARGB + 2] = ColorTable[Index * GIF_MODE_RGB + 0]; // Blue
-				ARGBData[PixelIndex * GIF_MODE_ARGB + 3] = 0xFF; // Alpha: fully opaque
+				ARGBData[PixelIndex * GIF_MODE_ARGB + 0] = ColorTable[Index * GIF_MODE_RGB + 2];
+				ARGBData[PixelIndex * GIF_MODE_ARGB + 1] = ColorTable[Index * GIF_MODE_RGB + 1];
+				ARGBData[PixelIndex * GIF_MODE_ARGB + 2] = ColorTable[Index * GIF_MODE_RGB + 0];
+				ARGBData[PixelIndex * GIF_MODE_ARGB + 3] = 0xFF;
 			}
 		}
 
-		// Use the ARGB data for the current frame
 		SImage Image;
 		Image.Data = ARGBData;
 		Image.Width = CanvasWidth;
