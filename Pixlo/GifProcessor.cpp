@@ -102,37 +102,6 @@ SAnimation CGifProcessor::Load(const char *Filepath, SGif *Gif)
 		uint32_t GlobalColorTableByteLength = sizeof(uint8_t) * GlobalColorTableSize * GIF_MODE_RGB;
 		Gif->GlobalColorTable = (uint8_t *) malloc(GlobalColorTableByteLength);
 		File->Read(Gif->GlobalColorTable, sizeof(uint8_t), GlobalColorTableByteLength);
-		uint32_t Counter = 0;
-		uint32_t Limit = 8;
-		printf_s("\t");
-		for (uint32_t I = 0; I < GlobalColorTableByteLength; I += GIF_MODE_RGB) {
-			if (Counter == Limit) {
-				printf_s(
-					"\n\t%02x%02x%02x, ",
-					Gif->GlobalColorTable[I],
-					Gif->GlobalColorTable[I + 1],
-					Gif->GlobalColorTable[I + 2]
-				);
-				Counter = 0;
-			}
-			else if (Counter == (Limit - 1)) {
-				printf_s(
-					"%02x%02x%02x",
-					Gif->GlobalColorTable[I],
-					Gif->GlobalColorTable[I + 1],
-					Gif->GlobalColorTable[I + 2]
-				);
-			}
-			else {
-				printf_s(
-					"%02x%02x%02x, ",
-					Gif->GlobalColorTable[I],
-					Gif->GlobalColorTable[I + 1],
-					Gif->GlobalColorTable[I + 2]
-				);
-			}
-			Counter++;
-		}
 	}
 
 	SAnimation GifAnimation;
@@ -141,16 +110,13 @@ SAnimation CGifProcessor::Load(const char *Filepath, SGif *Gif)
 
 	uint8_t TrailerMarker = 0;
 	while ((TrailerMarker = File->ReadUInt8()) != GIF_MAGIC_TRAILER_MARKER) {
-		printf_s("TrailerMarker: %02x\n", TrailerMarker);
 		File->Seek(File->Tell() - 1, ESeekOrigin::Set);
-		
 		SGifFrame GifFrame = { 0 };
 
 		uint8_t ExtensionIntroducer;
 		while ((ExtensionIntroducer = File->ReadUInt8()) != GIF_MAGIC_IMAGE_DESCRIPTOR) {
-			printf_s("ExtensionIntroducer: %02x\n", ExtensionIntroducer);
 			uint32_t ExtensionLabel = File->ReadUInt8();
-			printf_s("ExtensionLabel: %02x\n", ExtensionLabel);
+
 			switch (ExtensionLabel) {
 				case GIF_MAGIC_APPLICATION_EXTENSION_LABEL: {
 					uint8_t BytesSkip = File->ReadUInt8();

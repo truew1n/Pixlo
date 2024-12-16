@@ -34,8 +34,8 @@ int main(void)
 
     if (!RegisterClassW(&WindowClass)) return -1;
 
-    int32_t Width = 900;
-    int32_t Height = 900;
+    int32_t Width = 800;
+    int32_t Height = 600;
 
     RECT WindowRectangle = { 0 };
     WindowRectangle.right = Width;
@@ -117,8 +117,7 @@ int main(void)
             DeltaSum = 0;
         }
 
-        FillRectangle(Display, 0, 0, 200, 200, 0x0000FF00, DisplayWidth, DisplayHeight);
-        DrawImage(Display, 10, 10, &GifAnimation.Frames[AnimationIndex], DisplayWidth, DisplayHeight);
+        DrawImage(Display, 0, 0, &GifAnimation.Frames[AnimationIndex], DisplayWidth, DisplayHeight);
 
         StretchDIBits(
             HDisplayContext, 0, 0,
