@@ -5,7 +5,7 @@
 
 #include "Util.h"
 #include "File.h"
-#include "Array.h"
+#include "Type.h"
 
 // ######## CHUNK SIZE ########
 
@@ -28,12 +28,14 @@
 // ######## COLOR MODES ########
 
 #define GIF_MODE_RGB 3
+#define GIF_MODE_ARGB 4
 
 typedef struct SGifFrame {
 	uint8_t GraphicsControlExtension[GIF_SIZE_GRAPHICS_CONTROL_EXTENSION];
 	uint8_t ImageDescriptor[GIF_SIZE_IMAGE_DESCRIPTOR];
 	uint8_t *LocalColorTable;
 	uint8_t *ImageData;
+	uint64_t ImageDataSize;
 } SGifFrame;
 
 typedef struct SGif {
@@ -41,6 +43,7 @@ typedef struct SGif {
 	uint8_t LocalScreenDescriptor[GIF_SIZE_LOCAL_SCREEN_DESCRIPTOR];
 	uint8_t *GlobalColorTable;
 	SGifFrame *Frames;
+	uint32_t FrameCount;
 } SGif;
 
 
@@ -48,7 +51,7 @@ class CGifProcessor {
 public:
 	static void Print(SGif *Gif);
 
-	static void Load(const char *Filepath, SGif *Gif);
+	static SAnimation Load(const char *Filepath, SGif *Gif);
 };
 
 #endif

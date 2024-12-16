@@ -14,13 +14,14 @@ uint8_t Running = 1;
 LRESULT CALLBACK WindowProcedure(HWND HWindow, UINT Message, WPARAM UserParameter, LPARAM DataParameter);
 void DrawPixel(void *Display, int32_t X, int32_t Y, uint32_t Color, int32_t DisplayWidth, int32_t DisplayHeight);
 void FillRectangle(void *Display, int32_t X, int32_t Y, int32_t Width, int32_t Height, uint32_t Color, int32_t DisplayWidth, int32_t DisplayHeight);
+void DrawImage(void *Display, int32_t X, int32_t Y, SImage *Image, int32_t DisplayWidth, int32_t DisplayHeight);
 
 //int APIENTRY WinMain(HINSTANCE HInstance, HINSTANCE HPreviousInstance, LPSTR Command, int CommandLength)
 int main(void)
 {
     SGif Gif = { 0 };
-    CGifProcessor::Load("Assets\\Textures\\Behance.gif", &Gif);
-    CGifProcessor::Print(&Gif);
+    SAnimation GifAnimation = CGifProcessor::Load("Assets\\Textures\\Behance.gif", &Gif);
+    //CGifProcessor::Print(&Gif);
 
     free(Gif.GlobalColorTable);
 
@@ -33,8 +34,8 @@ int main(void)
 
     if (!RegisterClassW(&WindowClass)) return -1;
 
-    int32_t Width = 800;
-    int32_t Height = 800;
+    int32_t Width = 900;
+    int32_t Height = 900;
 
     RECT WindowRectangle = { 0 };
     WindowRectangle.right = Width;
@@ -89,6 +90,15 @@ int main(void)
 
     HDC HDisplayContext = GetDC(window);
 
+    uint32_t AnimationIndex = 0;
+
+    LARGE_INTEGER Frequency, LastTime, CurrentTime;
+    QueryPerformanceFrequency(&Frequency);
+    QueryPerformanceCounter(&LastTime);
+
+    float DeltaSum = 0;
+    float DeltaMax = 0.03;
+
     while (Running) {
         MSG Msg;
         while (PeekMessageW(&Msg, NULL, 0, 0, PM_REMOVE)) {
@@ -97,9 +107,18 @@ int main(void)
             DispatchMessageW(&Msg);
         }
 
+        // Calculate deltaTime
+        QueryPerformanceCounter(&CurrentTime);
+        double DeltaTime = (double) (CurrentTime.QuadPart - LastTime.QuadPart) / (double) Frequency.QuadPart;
+        LastTime = CurrentTime;
+
+        if (DeltaSum >= DeltaMax) {
+            AnimationIndex = (AnimationIndex + 1) % GifAnimation.Size;
+            DeltaSum = 0;
+        }
 
         FillRectangle(Display, 0, 0, 200, 200, 0x0000FF00, DisplayWidth, DisplayHeight);
-
+        DrawImage(Display, 10, 10, &GifAnimation.Frames[AnimationIndex], DisplayWidth, DisplayHeight);
 
         StretchDIBits(
             HDisplayContext, 0, 0,
@@ -110,9 +129,10 @@ int main(void)
             DIB_RGB_COLORS,
             SRCCOPY
         );
+        DeltaSum += DeltaTime;
     }
 
-    VirtualFree(Display, (SIZE_T)(DisplayWidth * DisplayHeight * BytesPerPixel), MEM_RELEASE);
+    VirtualFree(Display, (SIZE_T) (DisplayWidth * DisplayHeight * BytesPerPixel), MEM_RELEASE);
     return 0;
 }
 
@@ -142,6 +162,17 @@ void FillRectangle(void *Display, int32_t X, int32_t Y, int32_t Width, int32_t H
     for (int32_t j = 0; j < Height; ++j) {
         for (int32_t i = 0; i < Width; ++i) {
             DrawPixel(Display, X + i, Y + j , Color, DisplayWidth, DisplayHeight);
+        }
+    }
+}
+
+void DrawImage(void *Display, int32_t X, int32_t Y, SImage *Image, int32_t DisplayWidth, int32_t DisplayHeight)
+{
+    for (int32_t j = 0; j < Image->Height; ++j) {
+        for (int32_t i = 0; i < Image->Width; ++i) {
+            if ((i >= 0 && i < Image->Width) && (j >= 0 && j < Image->Height)) {
+                DrawPixel(Display, X + i, Y + j, ((uint32_t *) Image->Data)[i + j * Image->Width], DisplayWidth, DisplayHeight);
+            }
         }
     }
 }

@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "Array.h"
+#include "Type.h"
 
 /*
 	Data - Contains whole data of the frame
@@ -13,18 +14,7 @@
 	Channel - How many channels is per pixel
 	Note: Some modes can have 1 channel and 32 bits. So it would be R32.
 */
-typedef struct SImage {
-	uint8_t *Data;
-	uint32_t Width;
-	uint32_t Height;
-	uint8_t Bits;
-	uint8_t Channel;
-} SImage;
 
-typedef struct SAnimation {
-	TArray<SImage> Frames;
-	uint32_t Size;
-} SAnimation;
 
 enum class EImageFileFormat : uint8_t {
 	BMP,

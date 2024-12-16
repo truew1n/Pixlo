@@ -134,6 +134,7 @@
     <ClInclude Include="File.h" />
     <ClInclude Include="MediaProcessor.h" />
     <ClInclude Include="GifProcessor.h" />
+    <ClInclude Include="Type.h" />
     <ClInclude Include="Util.h" />
   </ItemGroup>
   <ItemGroup>
