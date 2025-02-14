@@ -20,7 +20,7 @@ void DrawImage(void *Display, int32_t X, int32_t Y, SImage *Image, int32_t Displ
 int main(void)
 {
     SGif Gif = { 0 };
-    SAnimation GifAnimation = CGifProcessor::Load("Assets\\Textures\\dance.gif", &Gif);
+    SAnimation GifAnimation = CGifProcessor::Load("Assets\\Textures\\cubes.gif", &Gif);
 
     free(Gif.GlobalColorTable);
 

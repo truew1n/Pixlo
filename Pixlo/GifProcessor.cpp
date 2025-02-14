@@ -206,6 +206,15 @@ SAnimation CGifProcessor::Load(const char *Filepath, SGif *Gif)
 		uint16_t TransparentIndex = GifFrame.GraphicsControlExtension[6];
 		uint8_t DisposalMethod = (GifFrame.GraphicsControlExtension[3] >> 2) & 0b111;
 
+		if (GifAnimation.Size == 0) {
+			for (uint64_t I = 0; I < CanvasWidth * CanvasHeight; ++I) {
+				CollectiveData[I * GIF_MODE_ARGB] = ColorTable[TransparentIndex];
+				CollectiveData[I * GIF_MODE_ARGB + 1] = ColorTable[TransparentIndex +  1];
+				CollectiveData[I * GIF_MODE_ARGB + 2] = ColorTable[TransparentIndex + 2];
+				CollectiveData[I * GIF_MODE_ARGB + 3] = 0xFF;
+			}
+			
+		}
 		uint8_t *ARGBData = (uint8_t *) malloc(PixelCount * GIF_MODE_ARGB);
 		// This seems to fix side gaps caused by disposal method 1. Changes are only saved within some bounding box...
 		memcpy(ARGBData, CollectiveData, PixelCount * GIF_MODE_ARGB);
