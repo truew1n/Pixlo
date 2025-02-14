@@ -20,9 +20,13 @@ void DrawImage(void *Display, int32_t X, int32_t Y, SImage *Image, int32_t Displ
 int main(void)
 {
     SGif Gif = { 0 };
-    SAnimation GifAnimation = CGifProcessor::Load("Assets\\Textures\\cubes.gif", &Gif);
-
-    free(Gif.GlobalColorTable);
+    SGif Gif1 = { 0 };
+    SGif Gif2 = { 0 };
+    SGif Gif3 = { 0 };
+    SAnimation GifAnimation = CGifProcessor::Load("Assets\\Textures\\toothless.gif", &Gif);
+    SAnimation GifAnimation1 = CGifProcessor::Load("Assets\\Textures\\dance.gif", &Gif1);
+    SAnimation GifAnimation2 = CGifProcessor::Load("Assets\\Textures\\mandelbrot.gif", &Gif2);
+    SAnimation GifAnimation3 = CGifProcessor::Load("Assets\\Textures\\cubes.gif", &Gif3);
 
     WNDCLASSW WindowClass = { 0 };
     WindowClass.hbrBackground = (HBRUSH) COLOR_WINDOW;
@@ -90,13 +94,22 @@ int main(void)
     HDC HDisplayContext = GetDC(window);
 
     uint32_t AnimationIndex = 0;
+    uint32_t AnimationIndex1 = 0;
+    uint32_t AnimationIndex2 = 0;
+    uint32_t AnimationIndex3 = 0;
 
     LARGE_INTEGER Frequency, LastTime, CurrentTime;
     QueryPerformanceFrequency(&Frequency);
     QueryPerformanceCounter(&LastTime);
 
     float DeltaSum = 0;
+    float DeltaSum1 = 0;
+    float DeltaSum2 = 0;
+    float DeltaSum3 = 0;
     float DeltaMax = GifAnimation.Delay / 150.0f;
+    float DeltaMax1 = GifAnimation1.Delay / 150.0f;
+    float DeltaMax2 = GifAnimation2.Delay / 150.0f;
+    float DeltaMax3 = GifAnimation3.Delay / 150.0f;
 
     while (Running) {
         MSG Msg;
@@ -115,7 +128,28 @@ int main(void)
             DeltaSum = 0;
         }
 
-        DrawImage(Display, 0, 0, &GifAnimation.Frames[AnimationIndex], DisplayWidth, DisplayHeight);
+        if (DeltaSum1 >= DeltaMax1) {
+            AnimationIndex1 = (AnimationIndex1 + 1) % (GifAnimation1.Size);
+            DeltaSum1 = 0;
+        }
+
+        if (DeltaSum2 >= DeltaMax2) {
+            AnimationIndex2 = (AnimationIndex2 + 1) % (GifAnimation2.Size);
+            DeltaSum2 = 0;
+        }
+
+        if (DeltaSum3 >= DeltaMax3) {
+            AnimationIndex3 = (AnimationIndex3 + 1) % (GifAnimation3.Size);
+            DeltaSum3 = 0;
+        }
+
+        DrawImage(Display, 600, 0, &GifAnimation.Frames[AnimationIndex], DisplayWidth, DisplayHeight);
+
+        DrawImage(Display, 0, 0, &GifAnimation1.Frames[AnimationIndex1], DisplayWidth, DisplayHeight);
+
+        DrawImage(Display, 150, 650, &GifAnimation2.Frames[AnimationIndex2], DisplayWidth, DisplayHeight);
+
+        DrawImage(Display, 600, 360, &GifAnimation3.Frames[AnimationIndex3], DisplayWidth, DisplayHeight);
 
         StretchDIBits(
             HDisplayContext, 0, 0,
@@ -127,6 +161,9 @@ int main(void)
             SRCCOPY
         );
         DeltaSum += (float) DeltaTime;
+        DeltaSum1 += (float)DeltaTime;
+        DeltaSum2 += (float)DeltaTime;
+        DeltaSum3 += (float)DeltaTime;
     }
 
     VirtualFree(Display, (SIZE_T) (DisplayWidth * DisplayHeight * BytesPerPixel), MEM_RELEASE);
