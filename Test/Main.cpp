@@ -20,8 +20,7 @@ void DrawImage(void *Display, int32_t X, int32_t Y, SImage *Image, int32_t Displ
 int main(void)
 {
     SGif Gif = { 0 };
-    SAnimation GifAnimation = CGifProcessor::Load("Assets\\Textures\\Behance.gif", &Gif);
-    //CGifProcessor::Print(&Gif);
+    SAnimation GifAnimation = CGifProcessor::Load("Assets\\Textures\\dance.gif", &Gif);
 
     free(Gif.GlobalColorTable);
 
@@ -112,7 +111,7 @@ int main(void)
         LastTime = CurrentTime;
 
         if (DeltaSum >= DeltaMax) {
-            AnimationIndex = (AnimationIndex + 1) % (GifAnimation.Size); // -24 Frame Snap Behance.gif
+            AnimationIndex = (AnimationIndex + 1) % (GifAnimation.Size);
             DeltaSum = 0;
         }
 

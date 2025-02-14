@@ -49,8 +49,6 @@ typedef struct SGif {
 
 class CGifProcessor {
 public:
-	static void Print(SGif *Gif);
-
 	static SAnimation Load(const char *Filepath, SGif *Gif);
 };
 

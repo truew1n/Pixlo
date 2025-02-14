@@ -2,76 +2,6 @@
 
 #include <vector>
 
-// public:
-
-void CGifProcessor::Print(SGif *Gif)
-{
-	/*printf_s("Header Block: ");
-	NMess::PrintHex(Gif->Header, GIF_SIZE_HEADER_BLOCK);
-	printf_s(" => ");
-	NMess::PrintAscii(Gif->Header, GIF_SIZE_HEADER_BLOCK);
-	printf_s("\n");
-
-	printf_s("Logical Screen Descriptor: ");
-	NMess::PrintHex(Gif->LocalScreenDescriptor, GIF_SIZE_LOCAL_SCREEN_DESCRIPTOR);
-	printf_s("\n");
-	uint16_t CanvasWidth = (Gif->LocalScreenDescriptor[1] << 8) | Gif->LocalScreenDescriptor[0];
-	uint16_t CanvasHeight = (Gif->LocalScreenDescriptor[3] << 8) | Gif->LocalScreenDescriptor[2];
-	uint8_t PackedField = Gif->LocalScreenDescriptor[4];
-	uint8_t BackgroundColorIndex = Gif->LocalScreenDescriptor[5];
-	uint8_t PixelAspectRatio = Gif->LocalScreenDescriptor[6];
-
-	uint8_t GlobalColorTableFlag = (PackedField >> 7) & 0b1;
-	uint8_t ColorResolution = ((PackedField >> 4) & 0b111) + 1;
-	uint8_t SortFlag = (PackedField >> 3) & 0b1;
-	uint16_t GlobalColorTableSize = (uint16_t) pow(2, (PackedField & 0b111) + 1);
-	
-	printf_s("\tCanvas Width: %i\n", CanvasWidth);
-	printf_s("\tCanvas Height: %i\n", CanvasHeight);
-	printf_s("\tPacked Field: %02x\n", PackedField);
-	printf_s("\t\tGlobal Color Table Flag: %i\n", GlobalColorTableFlag);
-	printf_s("\t\tColor Resolution: %i\n", ColorResolution);
-	printf_s("\t\tSort Flag: %i\n", SortFlag);
-	printf_s("\t\tSize of Global Color Table: %i\n", GlobalColorTableSize);
-	printf_s("\tBackground Color Index: %i\n", BackgroundColorIndex);
-	printf_s("\tPixel Aspect Ratio: %i\n", PixelAspectRatio);
-
-	if (GlobalColorTableFlag) {
-		printf_s("Global Color Table:\n");
-		uint32_t GlobalColorTableByteLength = sizeof(uint8_t) * GlobalColorTableSize * GIF_MODE_RGB;
-		uint32_t Counter = 0;
-		uint32_t Limit = 8;
-		printf_s("\t");
-		for (uint32_t I = 0; I < GlobalColorTableByteLength; I += GIF_MODE_RGB) {
-			if (Counter == Limit) {
-				printf_s(
-					"\n\t%02x%02x%02x, ",
-					Gif->GlobalColorTable[I],
-					Gif->GlobalColorTable[I + 1],
-					Gif->GlobalColorTable[I + 2]
-				);
-				Counter = 0;
-			}
-			else if (Counter == (Limit - 1)) {
-				printf_s(
-					"%02x%02x%02x",
-					Gif->GlobalColorTable[I],
-					Gif->GlobalColorTable[I + 1],
-					Gif->GlobalColorTable[I + 2]
-				);
-			}
-			else {
-				printf_s(
-					"%02x%02x%02x, ",
-					Gif->GlobalColorTable[I],
-					Gif->GlobalColorTable[I + 1],
-					Gif->GlobalColorTable[I + 2]
-				);
-			}
-			Counter++;
-		}
-	}*/
-}
 
 SAnimation CGifProcessor::Load(const char *Filepath, SGif *Gif)
 {
@@ -105,7 +35,8 @@ SAnimation CGifProcessor::Load(const char *Filepath, SGif *Gif)
 	}
 
 	SAnimation GifAnimation;
-	uint8_t *CollectiveData = (uint8_t *) malloc(sizeof(uint8_t) * CanvasWidth * CanvasHeight * GIF_MODE_ARGB);
+	uint32_t PixelCount = CanvasWidth * CanvasHeight;
+	uint8_t *CollectiveData = (uint8_t *) malloc(PixelCount * GIF_MODE_ARGB);
 	GifAnimation.Size = 0;
 
 	uint8_t TrailerMarker = 0;
@@ -274,11 +205,10 @@ SAnimation CGifProcessor::Load(const char *Filepath, SGif *Gif)
 
 		uint16_t TransparentIndex = GifFrame.GraphicsControlExtension[6];
 		uint8_t DisposalMethod = (GifFrame.GraphicsControlExtension[3] >> 2) & 0b111;
-		//printf_s("Disposal Method: %i\n", DisposalMethod);
 
-		uint32_t PixelCount = CanvasWidth * CanvasHeight;
 		uint8_t *ARGBData = (uint8_t *) malloc(PixelCount * GIF_MODE_ARGB);
-		//std::cout << ImageTop << " " << ImageLeft << " " << ImageWidth << " " << ImageHeight << "\n";
+		// This seems to fix side gaps caused by disposal method 1. Changes are only saved within some bounding box...
+		memcpy(ARGBData, CollectiveData, PixelCount * GIF_MODE_ARGB);
 
 		for (uint32_t J = 0; J < ImageHeight; ++J) {
 			for (uint32_t I = 0; I < ImageWidth; ++I) {
@@ -294,16 +224,6 @@ SAnimation CGifProcessor::Load(const char *Filepath, SGif *Gif)
 				uint64_t IGreen = Index * GIF_MODE_RGB + 1;
 				uint64_t IBlue = Index * GIF_MODE_RGB + 2;
 
-				if (DisposalMethod == 1) {
-					if (Index == TransparentIndex && CollectiveData) {
-						ARGBData[PIRed] = CollectiveData[PIRed];
-						ARGBData[PIGreen] = CollectiveData[PIGreen];
-						ARGBData[PIBlue] = CollectiveData[PIBlue];
-						ARGBData[PIAlpha] = CollectiveData[PIAlpha];
-						continue;
-					}
-				}
-
 				if (Index >= ColorTableSize) {
 					ARGBData[PIRed] = 0xFF;
 					ARGBData[PIGreen] = 0xFF;
@@ -312,17 +232,26 @@ SAnimation CGifProcessor::Load(const char *Filepath, SGif *Gif)
 					continue;
 				}
 
+				if (DisposalMethod == 1) {
+					if (Index == TransparentIndex) {
+						ARGBData[PIRed] = CollectiveData[PIRed];
+						ARGBData[PIGreen] = CollectiveData[PIGreen];
+						ARGBData[PIBlue] = CollectiveData[PIBlue];
+						ARGBData[PIAlpha] = CollectiveData[PIAlpha];
+						continue;
+					} else {
+						CollectiveData[PIRed] = ColorTable[IBlue];
+						CollectiveData[PIGreen] = ColorTable[IGreen];
+						CollectiveData[PIBlue] = ColorTable[IRed];
+						CollectiveData[PIAlpha] = 0xFF;
+					}
+				}
+				
 				// Map index to ARGB
 				ARGBData[PIRed] = ColorTable[IBlue];
 				ARGBData[PIGreen] = ColorTable[IGreen];
 				ARGBData[PIBlue] = ColorTable[IRed];
 				ARGBData[PIAlpha] = 0xFF;
-				if (DisposalMethod == 1) {
-					CollectiveData[PIRed] = ColorTable[IBlue];
-					CollectiveData[PIGreen] = ColorTable[IGreen];
-					CollectiveData[PIBlue] = ColorTable[IRed];
-					CollectiveData[PIAlpha] = 0xFF;
-				}
 			}
 		}
 
@@ -339,6 +268,7 @@ SAnimation CGifProcessor::Load(const char *Filepath, SGif *Gif)
 
 		File->Seek(1, ESeekOrigin::Current);
 	}
+
 	free(CollectiveData);
 	return GifAnimation;
 }
